@@ -1,12 +1,13 @@
 #include <stdio.h>
+#include <stdlib.h>
 
+#define new(a) ((a*) calloc(1, sizeof(a)))
 #define max 20
 #define invalido -1
 #define true 1
 #define false 0
-
-typedef int bool;
-typedef int tipochave;
+#define bool char
+#define tipochave int
 
 typedef struct
 {
@@ -27,22 +28,17 @@ typedef struct
     int disponivel;
 }lista;
 
-int main(){
-
-    return 0;
-}
-
-void inicializarLista(lista* l){
-
-    for(int i = 0; i < max - 1; i++) l->list[i].prox - i + 1;
+void inicializarLista(lista* l)
+{
+    for(int i = 0; i < max - 1; i++) l->list[i].prox = i + 1;
 
     l->list[max - 1].prox = invalido;
     l->inicio = invalido;
     l->disponivel = 0;
 }
 
-int tamanhoLista(lista* l){
-
+int tamanhoLista(lista* l)
+{
     int tamanho = 0;
     int i = l->inicio;
 
@@ -54,38 +50,53 @@ int tamanhoLista(lista* l){
     return tamanho;
 }
 
-void printLista(lista* l){
-
+void printLista(lista* l)
+{
     int i = l->inicio;
 
-    printf('Lista: ');
+    printf("Lista: ");
 
     while(i != invalido){
-        printf('i% ', l->list[i].prod.chave);
+        printf("%d ", l->list[i].prod.chave);
         i = l->list[i].prox;
     }
 
-    printf('\n');
+    printf("\n");
 }
 
-int buscaSequencial(lista* l, tipochave chv){
-
+int buscaSequencialOrdenada(lista* l, tipochave chv)
+{
     int i = l->inicio;
 
-    while(i != invalido && l->list[i].prod.chave){
+    while(i != invalido && l->list[i].prod.chave < chv){
         i = l->list[i].prox;
     }
 
-    if(i != invalido) return i;
+    if(l->list[i].prod.chave == chv){
+        
+        printf("buscaSequencialOrdenada: Produto com a chave %d foi encontrado!\n", chv);
+        return i;
+    }
+
+    printf("buscaSequencialOrdenada: Um produto com a chave %d não foi encontrado!\n", chv);
 
     return invalido;
 }
 
-bool inserirElemento(lista* l, produto p){
+int obterNo(lista* l)
+{
+    int retirado = l->disponivel;
 
+    if(l->disponivel != invalido) l->disponivel = l->list[retirado].prox;
+
+    return retirado;
+}
+
+bool inserirElemento(lista* l, produto p)
+{
     if(l->disponivel == invalido){
         
-        printf('A lista está cheia!\n');
+        printf("inserirElemento: A lista está cheia!\n");
         return false;
     }
 
@@ -94,14 +105,14 @@ bool inserirElemento(lista* l, produto p){
     tipochave chv = p.chave;
 
     while(i != invalido && l->list[i].prod.chave < chv){
-        
+          
         anterior = i;
         i = l->list[i].prox;
     }
 
     if(i != invalido && l->list[i].prod.chave == chv){
         
-        printf('Um produto com a mesma chave já está na lista!\n');
+        printf("inserirElemento: Um produto com a chave %d já está na lista!\n", chv);
         return false;
     }
 
@@ -118,27 +129,23 @@ bool inserirElemento(lista* l, produto p){
 
         l->list[i].prox = l->list[anterior].prox;
         l->list[anterior].prox = i;
-
     }
 
-    printf('A inserção foi um sucesso!\n');
+    printf("inserirElemento: A inserção do produto com chave %d foi um sucesso!\n", chv);
     return true;
 }
 
-int obterNo(lista* l){
-
-    int retirado = l->disponivel;
-
-    if(l->disponivel != invalido) l->disponivel = l->list[retirado].prox;
-
-    return retirado;
+void removerNo(lista* l, int i)
+{
+    l->list[i].prox = l->disponivel;
+    l->disponivel = i;
 }
 
-bool removerElemento(lista* l, tipochave chv){
-
+bool removerElemento(lista* l, tipochave chv)
+{
     if(l->inicio == invalido){
 
-        printf('Está lista está vazia');
+        printf("removerElemento: Está lista está vazia!\n");
         return false;
     }
     
@@ -151,9 +158,9 @@ bool removerElemento(lista* l, tipochave chv){
         i = l->list[i].prox;
     }
 
-    if(i != invalido && l->list[i].prod.chave != chv){
+    if(i == invalido || l->list[i].prod.chave != chv){
 
-        printf('Um produto com essa chave não está na lista!\n');
+        printf("removerElemento: Um produto com a chave %d não está na lista!\n", chv);
         return false;
     }
 
@@ -162,12 +169,35 @@ bool removerElemento(lista* l, tipochave chv){
     else l->list[anterior].prox = l->list[i].prox;
 
     removerNo(l, i);
-    printf('A remoção foi um sucesso!');
+    printf("removerElemento: A remoção do produto com chave %d foi um sucesso!\n", chv);
     return true;
 }
 
-void removerNo(lista* l, int i){
+int main()
+{
+    lista* listaa = new(lista);
+    inicializarLista(listaa);
+    printf("Tamanho da lista: %d.\n", tamanhoLista(listaa));
+    produto prod1, prod2, prod3, prod4, prod5;
+    prod1.chave = 40;
+    prod2.chave = 1;
+    prod3.chave = 10;
+    prod4.chave = 20;
+    prod5.chave = 30;
 
-    l->list[i].prox = l->disponivel;
-    l->disponivel = i;
+    inserirElemento(listaa, prod1);
+    inserirElemento(listaa, prod2);
+    inserirElemento(listaa, prod3);
+    inserirElemento(listaa, prod4);
+    inserirElemento(listaa, prod5);
+
+    printLista(listaa);
+
+    removerElemento(listaa, prod2.chave);
+    removerElemento(listaa, 50);
+    removerElemento(listaa, listaa->list[buscaSequencialOrdenada(listaa, 40)].prod.chave);
+
+    printLista(listaa);
+
+    return 0;
 }
