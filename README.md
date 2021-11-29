@@ -1,3 +1,3 @@
 # Estruturas-de-Dados
 
-Estruturas de dados em C.
+Estudo de estruturas de dados em C.
